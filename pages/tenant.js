@@ -6,9 +6,7 @@ import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
+import MUIDataTable from "mui-datatables";
 
 import useSWR from 'swr'
 import theme from '../src/theme';
@@ -70,6 +68,37 @@ export async function getServerSideProps() {
 export default function Tenant({ tenants }) {
     const classes = useStyles(theme);
 
+    const columns = [
+        {
+            name: "id",
+            label: "Id",
+            options: {
+                filter: true,
+                sort: true,
+            }
+        },
+        {
+            name: "name",
+            label: "Name",
+            options: {
+                filter: true,
+                sort: false,
+            }
+        },
+        {
+            name: "hash",
+            label: "Hash",
+            options: {
+                filter: true,
+                sort: false,
+            }
+        },
+    ];
+
+    const options = {
+        filterType: 'checkbox',
+    };
+
     return (
         <div>
             <Head>
@@ -77,24 +106,20 @@ export default function Tenant({ tenants }) {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <main>
-                <Container maxWidth="sm">
+                <Container maxWidth="md">
                     <Box my={10}>
                         <Typography variant="h4" component="h1" gutterBottom>
                             Welcome to <Link href="/" color="secondary">MACHub!</Link>
                         </Typography>
+                        <Paper>
+                            <MUIDataTable
+                                title={"Tenants List"}
+                                data={tenants}
+                                columns={columns}
+                                options={options}
+                            />
+                        </Paper>
                     </Box>
-                    <Paper>
-                        <List className={classes.mylist}>
-                            {tenants.map((tenant) => (
-                                <ListItem key={tenant.id}>
-                                    <ListItemText
-                                        primary={tenant.name}
-                                        secondary={tenant.hash}
-                                    />
-                                </ListItem>
-                            ))}
-                        </List>
-                    </Paper>
                 </Container>
             </main>
         </div>
