@@ -16,7 +16,7 @@ export default function About() {
         </Typography>
         <Button variant="contained" color="primary" component={Link} naked href="/">
           Go to the main page
-        </Button>
+        </Button>        
         <ProTip />
         <Copyright />
       </Box>

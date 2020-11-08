@@ -16,6 +16,10 @@ export default function Index() {
         <Link href="/about" color="secondary">
           Go to the about page
         </Link>
+        <br/>
+        <Link href="/tenant" color="secondary">
+          Tenants
+        </Link>        
         <ProTip />
         <Copyright />
       </Box>

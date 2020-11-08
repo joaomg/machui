@@ -2,6 +2,9 @@
 import Head from 'next/head'
 import Link from '../src/Link';
 
+import React from 'react';
+import EditSharpIcon from '@material-ui/icons/EditSharp';
+import IconButton from '@material-ui/core/IconButton';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
@@ -10,6 +13,7 @@ import MUIDataTable from "mui-datatables";
 
 import useSWR from 'swr'
 import theme from '../src/theme';
+import TenantEdit from '../src/TenantEdit'
 import { makeStyles } from '@material-ui/core/styles';
 
 const fetcher = url => fetch(url).then(res => res.json());
@@ -67,36 +71,47 @@ export async function getServerSideProps() {
 
 export default function Tenant({ tenants }) {
     const classes = useStyles(theme);
+    const [tenant, setTenant] = React.useState({
+        open: false,
+        tenantId: 0,
+    });
 
     const columns = [
         {
             name: "id",
             label: "Id",
-            options: {
-                filter: true,
-                sort: true,
-            }
         },
         {
             name: "name",
             label: "Name",
-            options: {
-                filter: true,
-                sort: false,
-            }
         },
         {
             name: "hash",
             label: "Hash",
+        },
+        {
+            name: "id",
+            label: " ",
             options: {
-                filter: true,
-                sort: false,
+                customBodyRender: (value, tableMeta, updateValue) => {
+                    return (
+                        <IconButton color="primary" variant="outlined" onClick={() => setTenant({ open: true, tenantId: value })}>
+                            <EditSharpIcon />
+                        </IconButton>
+                    )
+                }
             }
         },
     ];
 
     const options = {
-        filterType: 'checkbox',
+        selectableRows: 'none',
+        download: false,
+        print: false,
+        filter: false,
+        viewColumns: false,
+        pagination: false,
+        sort: false,
     };
 
     return (
@@ -120,6 +135,10 @@ export default function Tenant({ tenants }) {
                             />
                         </Paper>
                     </Box>
+                    <TenantEdit
+                        tenant={tenant}
+                        setTenant={setTenant}
+                    />
                 </Container>
             </main>
         </div>
