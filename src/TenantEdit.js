@@ -22,17 +22,14 @@ function getTenant(id) {
     }
 }
 
-function Tenant (id) {
+function Tenant(id) {
     const { tenant, isLoading, isError } = getTenant(id)
     if (isLoading) return '<Spinner />'
     if (isError) return '<Error />'
     return tenant
-  }
+}
 
 async function saveTenant(tenantId) {
-    console.log(tenantId)
-    console.log(tenantName.value)
-
     let data = { id: tenantId, name: tenantName.value }
 
     const response = await fetch(`http://localhost:5100/tenant/${tenantId}`, {
@@ -48,42 +45,47 @@ async function saveTenant(tenantId) {
         referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
         body: JSON.stringify(data) // body data type must match "Content-Type" header
     });
-    
+
     return response.json(); // parses JSON response into native JavaScript objects
 }
 
 export default function TenantEdit(props) {
-    const { tenant, setTenant } = props;
+    const { tenantEdit, setTenantEdit, refreshTenants } = props;
 
-    let tenantDetails = tenant.tenantId == 0 ? {} : Tenant(tenant.tenantId);
+    let tenant = tenantEdit.tenantId == 0 ? {} : Tenant(tenantEdit.tenantId);
 
-    return (
-        <div>
-            <Dialog open={tenant.open} onClose={() => setTenant({ open: false, tenantId: 0 })} aria-labelledby="form-dialog-title">
-                <DialogTitle id="form-dialog-title">Edit Tenant</DialogTitle>
-                <Divider variant="middle" />
-                <DialogContent>
-                    <DialogContentText>
-                        The tenant details, choose the name wisely.
+    if (tenant == {}) {
+        return null
+    } else {
+
+        return (
+            <div>
+                <Dialog open={tenantEdit.open} onClose={() => setTenantEdit({ open: false, tenantId: 0 })} aria-labelledby="form-dialog-title">
+                    <DialogTitle id="form-dialog-title">Edit Tenant</DialogTitle>
+                    <Divider variant="middle" />
+                    <DialogContent>
+                        <DialogContentText>
+                            The tenant details, choose the name wisely.
                     </DialogContentText>
-                    <TextField
-                        margin="dense"
-                        id="tenantName"
-                        label="Name"
-                        defaultValue={tenantDetails.name}
-                        helperText={`Used to navigate: https://machui.eu/${tenantDetails.name}`}
-                        fullWidth
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setTenant({ open: false, tenantId: 0 })} color="primary">
-                        Cancel
+                        <TextField
+                            margin="dense"
+                            id="tenantName"
+                            label="Name"
+                            defaultValue={tenant.name}
+                            helperText={`Used to navigate: https://machui.eu/${tenant.name}`}
+                            fullWidth
+                        />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setTenantEdit({ open: false, tenantId: 0 })} color="primary">
+                            Cancel
                     </Button>
-                    <Button onClick={() => { saveTenant(tenant.tenantId); setTenant({ open: false, tenantId: 0 }) }} color="primary">
-                        Save
+                        <Button onClick={() => { saveTenant(tenantEdit.tenantId); setTenantEdit({ open: false, tenantId: 0 }); refreshTenants(); }} color="primary">
+                            Save
                     </Button>
-                </DialogActions>
-            </Dialog>
-        </div>
-    );
+                    </DialogActions>
+                </Dialog>
+            </div>
+        );
+    }
 }

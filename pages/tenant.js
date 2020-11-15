@@ -43,26 +43,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-function GetTenants() {
-    const { data, error } = useSWR('http://localhost:5100/tenant', fetcher)
+export async function getServerSideProps() {
+    const res = await fetch(`http://localhost:5100/tenant`)
+    const tenants = await res.json()
 
-    if (error) return <div>failed to load</div>
-    if (!data) return <div>loading...</div>
-    return (
-        <List className={classes.mylist}>
-            {data.map((tenant) => (
-                <ListItem key={tenant.id}>
-                    <ListItemText
-                        primary="Single-line item"
-                        secondary={secondary ? 'Secondary text' : null}
-                    />
-                </ListItem>
-            ))}
-        </List>
-    )
+    return { props: { tenants } }
 }
 
-export async function getServerSideProps() {
+export async function refreshTenants() {
     const res = await fetch(`http://localhost:5100/tenant`)
     const tenants = await res.json()
 
@@ -71,7 +59,7 @@ export async function getServerSideProps() {
 
 export default function Tenant({ tenants }) {
     const classes = useStyles(theme);
-    const [tenant, setTenant] = React.useState({
+    const [tenantEdit, setTenantEdit] = React.useState({
         open: false,
         tenantId: 0,
     });
@@ -95,7 +83,7 @@ export default function Tenant({ tenants }) {
             options: {
                 customBodyRender: (value, tableMeta, updateValue) => {
                     return (
-                        <IconButton color="primary" variant="outlined" onClick={() => setTenant({ open: true, tenantId: value })}>
+                        <IconButton color="primary" variant="outlined" onClick={() => setTenantEdit({ open: true, tenantId: value })}>
                             <EditSharpIcon />
                         </IconButton>
                     )
@@ -136,8 +124,9 @@ export default function Tenant({ tenants }) {
                         </Paper>
                     </Box>
                     <TenantEdit
-                        tenant={tenant}
-                        setTenant={setTenant}
+                        tenantEdit={tenantEdit}
+                        setTenantEdit={setTenantEdit}
+                        refreshTenants={refreshTenants}
                     />
                 </Container>
             </main>
