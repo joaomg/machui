@@ -42,22 +42,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-
-export async function getServerSideProps() {
-    const res = await fetch(`http://localhost:5100/tenant`)
-    const tenants = await res.json()
-
-    return { props: { tenants } }
-}
-
-export async function refreshTenants() {
-    const res = await fetch(`http://localhost:5100/tenant`)
-    const tenants = await res.json()
-
-    return { props: { tenants } }
-}
-
-export default function Tenant({ tenants }) {
+export function Tenant({ tenants }) {
     const classes = useStyles(theme);
     const [tenantEdit, setTenantEdit] = React.useState({
         open: false,
@@ -102,6 +87,11 @@ export default function Tenant({ tenants }) {
         sort: false,
     };
 
+    console.log("Tenant!")
+
+    // Here the `fetcher` function will be executed on the client-side.
+    const { data } = useSWR('http://localhost:5100/tenant', fetcher)
+
     return (
         <div>
             <Head>
@@ -117,7 +107,7 @@ export default function Tenant({ tenants }) {
                         <Paper>
                             <MUIDataTable
                                 title={"Tenants List"}
-                                data={tenants}
+                                data={data}
                                 columns={columns}
                                 options={options}
                             />
@@ -133,3 +123,21 @@ export default function Tenant({ tenants }) {
         </div>
     )
 }
+
+export async function getServerSideProps() {
+    const res = await fetch(`http://localhost:5100/tenant`)
+    const tenants = await res.json()
+
+    return { props: { tenants } }
+}
+
+export async function refreshTenants() {
+    const res = await fetch(`http://localhost:5100/tenant`)
+    const tenants = await res.json()
+
+    console.log("refreshTenants")
+
+    return { props: { tenants } }
+}
+
+export default Tenant
