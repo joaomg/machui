@@ -106,7 +106,7 @@ export function Tenant({ tenants }) {
                         </Typography>
                         <Paper>
                             <MUIDataTable
-                                title={"Tenants List"}
+                                title={"Tenants"}
                                 data={data}
                                 columns={columns}
                                 options={options}

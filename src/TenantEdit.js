@@ -24,8 +24,10 @@ function getTenant(id) {
 
 function Tenant(id) {
     const { tenant, isLoading, isError } = getTenant(id)
-    if (isLoading) return '<Spinner />'
-    if (isError) return '<Error />'
+    // if (isLoading) return '<Spinner />'
+    // if (isError) return '<Error />'
+    if (isLoading) return null
+    if (isError) return null
     return tenant
 }
 
@@ -52,9 +54,9 @@ async function saveTenant(tenantId) {
 export default function TenantEdit(props) {
     const { tenantEdit, setTenantEdit, refreshTenants } = props;
 
-    let tenant = tenantEdit.tenantId == 0 ? {} : Tenant(tenantEdit.tenantId);
+    let tenant = tenantEdit.tenantId == 0 ? null : Tenant(tenantEdit.tenantId);
 
-    if (tenant == {}) {
+    if (tenant === null) {
         return null
     } else {
 
