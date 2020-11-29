@@ -1,4 +1,3 @@
-
 import Head from 'next/head'
 import Link from '../src/Link';
 
@@ -11,43 +10,60 @@ import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
 import MUIDataTable from "mui-datatables";
 
-import useSWR from 'swr'
-import theme from '../src/theme';
 import TenantEdit from '../src/TenantEdit'
-import { makeStyles } from '@material-ui/core/styles';
 
-const fetcher = url => fetch(url).then(res => res.json());
+export async function getServerSideProps() {
+    const res = await fetch(`http://localhost:5100/tenant`)
+    const tenants = await res.json()
 
-const useStyles = makeStyles((theme) => ({
-    paper: {
-        marginTop: theme.spacing(8),
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-    },
-    avatar: {
-        margin: theme.spacing(1),
-        backgroundColor: theme.palette.secondary.main,
-    },
-    form: {
-        width: '100%', // Fix IE 11 issue.
-        marginTop: theme.spacing(1),
-    },
-    submit: {
-        margin: theme.spacing(3, 0, 2),
-    },
-    mylist: {
-        margin: theme.spacing(3, 0, 2),
-        paddingInlineStart: 0,
-    },
-}));
+    return { props: { tenants } }
+}
 
 export function Tenant({ tenants }) {
-    const classes = useStyles(theme);
-    const [tenantEdit, setTenantEdit] = React.useState({
-        open: false,
-        tenantId: 0,
-    });
+    const [open, setOpen] = React.useState(false)
+    const [tenant, setTenant] = React.useState(null)
+    const [tenantData, setTenantData] = React.useState(tenants)
+
+    async function postData(url = '', data = {}) {
+        const response = await fetch(url, {
+            method: 'PUT', // *GET, POST, PUT, DELETE, etc.
+            mode: 'cors', // no-cors, *cors, same-origin
+            cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: 'same-origin', // include, *same-origin, omit
+            headers: {
+                'Content-Type': 'application/json'
+                // 'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            redirect: 'follow', // manual, *follow, error
+            referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+            body: JSON.stringify(data) // body data type must match "Content-Type" header
+        });
+
+        return response.json(); // parses JSON response into native JavaScript objects    
+    }
+
+    async function saveTenant(tenant) {
+        postData(`http://localhost:5100/tenant/${tenant.id}`, tenant)
+            .then(data => {
+                getTenants();
+                getTenant(tenant.id)
+            });
+    }
+
+    async function getTenant(tenantId) {
+        fetch(`http://localhost:5100/tenant/${tenantId}`)
+            .then(response => response.json())
+            .then(data => {
+                setTenant(data);
+                setOpen(true)
+            });
+    }
+
+    async function getTenants() {
+        fetch('http://localhost:5100/tenant')
+            .then(response => response.json())
+            .then(data => setTenantData(data));
+    }
 
     const columns = [
         {
@@ -66,9 +82,9 @@ export function Tenant({ tenants }) {
             name: "id",
             label: " ",
             options: {
-                customBodyRender: (value, tableMeta, updateValue) => {
+                customBodyRender: (value) => {
                     return (
-                        <IconButton color="primary" variant="outlined" onClick={() => setTenantEdit({ open: true, tenantId: value })}>
+                        <IconButton color="primary" variant="outlined" onClick={() => getTenant(value)}>
                             <EditSharpIcon />
                         </IconButton>
                     )
@@ -87,11 +103,6 @@ export function Tenant({ tenants }) {
         sort: false,
     };
 
-    console.log("Tenant!")
-
-    // Here the `fetcher` function will be executed on the client-side.
-    const { data } = useSWR('http://localhost:5100/tenant', fetcher)
-
     return (
         <div>
             <Head>
@@ -107,37 +118,22 @@ export function Tenant({ tenants }) {
                         <Paper>
                             <MUIDataTable
                                 title={"Tenants"}
-                                data={data}
+                                data={tenantData}
                                 columns={columns}
                                 options={options}
                             />
                         </Paper>
                     </Box>
                     <TenantEdit
-                        tenantEdit={tenantEdit}
-                        setTenantEdit={setTenantEdit}
-                        refreshTenants={refreshTenants}
+                        open={open}
+                        setOpen={setOpen}
+                        tenant={tenant}
+                        saveTenant={saveTenant}
                     />
                 </Container>
             </main>
         </div>
     )
-}
-
-export async function getServerSideProps() {
-    const res = await fetch(`http://localhost:5100/tenant`)
-    const tenants = await res.json()
-
-    return { props: { tenants } }
-}
-
-export async function refreshTenants() {
-    const res = await fetch(`http://localhost:5100/tenant`)
-    const tenants = await res.json()
-
-    console.log("refreshTenants")
-
-    return { props: { tenants } }
 }
 
 export default Tenant
