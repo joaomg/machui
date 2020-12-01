@@ -10,29 +10,27 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { useTheme } from '@material-ui/core/styles';
 
-
-export default function TenantEdit(props) {
-    const { open, setOpen, tenant, saveTenant } = props;
+export default function TenantCreate(props) {
+    const { open, setOpen, createTenant } = props;
 
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
-    if (!tenant) return null
     return (
         <div>
             <Dialog open={open} onClose={() => setOpen(false)} aria-labelledby="form-dialog-title" fullScreen={fullScreen}>
-                <DialogTitle id="form-dialog-title">Edit Tenant</DialogTitle>
+                <DialogTitle id="form-dialog-title">Create Tenant</DialogTitle>
                 <Divider variant="middle" />
                 <DialogContent>
                     <DialogContentText>
-                        The tenant details, choose the name wisely.
+                        New tenant details, choose the name wisely.
                     </DialogContentText>
                     <TextField
                         margin="dense"
                         id="tenantName"
                         label="Name"
-                        defaultValue={tenant.name}
-                        helperText={`Used to navigate: https://machui.eu/${tenant.name}`}
+                        defaultValue="The tenant's name"
+                        helperText={`Used to navigate: https://machui.eu/Name`}
                         autoComplete="off"
                         fullWidth
                     />
@@ -41,8 +39,8 @@ export default function TenantEdit(props) {
                     <Button onClick={() => setOpen(false)} color="primary">
                         Cancel
                     </Button>
-                    <Button onClick={() => saveTenant({ id: tenant.id, name: tenantName.value })} color="primary">
-                        Save
+                    <Button onClick={() => createTenant({ name: tenantName.value })} color="primary">
+                        Create
                     </Button>
                 </DialogActions>
             </Dialog>

@@ -2,15 +2,21 @@ import Head from 'next/head'
 import Link from '../src/Link';
 
 import React from 'react';
+import Button from '@material-ui/core/Button';
 import EditSharpIcon from '@material-ui/icons/EditSharp';
+import Delete from '@material-ui/icons/Delete';
 import IconButton from '@material-ui/core/IconButton';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import Box from '@material-ui/core/Box';
+import Snackbar from '@material-ui/core/Snackbar';
+import Slide from '@material-ui/core/Slide';
 import MUIDataTable from "mui-datatables";
 
 import TenantEdit from '../src/TenantEdit'
+import TenantCreate from '../src/TenantCreate'
+import TenantDelete from '../src/TenantDelete';
 
 export async function getServerSideProps() {
     const res = await fetch(`http://localhost:5100/tenant`)
@@ -19,14 +25,21 @@ export async function getServerSideProps() {
     return { props: { tenants } }
 }
 
+function Transition(props) {
+    return <Slide {...props} direction="up" />;
+}
+
 export function Tenant({ tenants }) {
-    const [open, setOpen] = React.useState(false)
+    const [editOpen, setEditOpen] = React.useState(false)
+    const [createOpen, setCreateOpen] = React.useState(false)
+    const [deleteOpen, setDeleteOpen] = React.useState(false)
     const [tenant, setTenant] = React.useState(null)
     const [tenantData, setTenantData] = React.useState(tenants)
+    const [snack, setSnack] = React.useState({ open: false, message: "" })
 
-    async function postData(url = '', data = {}) {
+    async function fetchData(url = '', method = 'GET', data = {}) {
         const response = await fetch(url, {
-            method: 'PUT', // *GET, POST, PUT, DELETE, etc.
+            method: method, // *GET, POST, PUT, DELETE, etc.
             mode: 'cors', // no-cors, *cors, same-origin
             cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
             credentials: 'same-origin', // include, *same-origin, omit
@@ -43,10 +56,56 @@ export function Tenant({ tenants }) {
     }
 
     async function saveTenant(tenant) {
-        postData(`http://localhost:5100/tenant/${tenant.id}`, tenant)
+        fetchData(`http://localhost:5100/tenant/${tenant.id}`, 'PUT', tenant)
             .then(data => {
-                getTenants();
-                getTenant(tenant.id)
+                setSnack({ open: true, message: data.msg })
+                setEditOpen(false)
+                refreshTenants()
+            });
+    }
+
+    async function createTenant(tenant) {
+        fetchData(`http://localhost:5100/tenant`, 'POST', tenant)
+            .then(data => {
+                setSnack({ open: true, message: data.msg })
+                setCreateOpen(false)
+                refreshTenants()
+            })
+            ;
+    }
+
+    async function deleteTenant(tenant) {
+
+        fetch(`http://localhost:5100/tenant/${tenant.id}`, {
+            method: 'delete'
+        })
+            .then(response => response.json())
+            .then(data => {
+                setSnack({ open: true, message: data.msg })
+                setDeleteOpen(false)
+                refreshTenants()
+            }
+            )
+            .catch(err => console.log(err))
+        /*
+    fetchData(`http://localhost:5100/tenant/${tenant.id}`, 'DELETE', {})
+        .then(data => {
+            setSnack({ open: true, message: data.msg })
+            setEditOpen(false)
+            refreshTenants()
+        })
+        .then(error => {
+            console.log(error)
+        });
+        */
+    }
+
+    async function openDeleteTenant(tenantId) {
+        fetch(`http://localhost:5100/tenant/${tenantId}`)
+            .then(response => response.json())
+            .then(data => {
+                setTenant(data)
+                setDeleteOpen(true)
             });
     }
 
@@ -54,16 +113,20 @@ export function Tenant({ tenants }) {
         fetch(`http://localhost:5100/tenant/${tenantId}`)
             .then(response => response.json())
             .then(data => {
-                setTenant(data);
-                setOpen(true)
+                setTenant(data)
+                setEditOpen(true)
             });
     }
 
-    async function getTenants() {
+    async function refreshTenants() {
         fetch('http://localhost:5100/tenant')
             .then(response => response.json())
-            .then(data => setTenantData(data));
+            .then(data => setTenantData(data))
     }
+
+    function handleClose() {
+        setSnack({ open: false, message: "" })
+    };
 
     const columns = [
         {
@@ -77,6 +140,9 @@ export function Tenant({ tenants }) {
         {
             name: "hash",
             label: "Hash",
+            options: {
+                display: false,
+            }
         },
         {
             name: "id",
@@ -84,9 +150,14 @@ export function Tenant({ tenants }) {
             options: {
                 customBodyRender: (value) => {
                     return (
-                        <IconButton color="primary" variant="outlined" onClick={() => getTenant(value)}>
-                            <EditSharpIcon />
-                        </IconButton>
+                        <div>
+                            <IconButton color="primary" variant="outlined" onClick={() => getTenant(value)}>
+                                <EditSharpIcon />
+                            </IconButton>
+                            <IconButton color="secondary" variant="outlined" onClick={() => openDeleteTenant(value)}>
+                                <Delete />
+                            </IconButton>
+                        </div>
                     )
                 }
             }
@@ -111,7 +182,7 @@ export function Tenant({ tenants }) {
             </Head>
             <main>
                 <Container maxWidth="md">
-                    <Box my={10}>
+                    <Box m={1}>
                         <Typography variant="h4" component="h1" gutterBottom>
                             Welcome to <Link href="/" color="secondary">MACHub!</Link>
                         </Typography>
@@ -124,11 +195,36 @@ export function Tenant({ tenants }) {
                             />
                         </Paper>
                     </Box>
+                    <Box
+                        m="1"
+                        display="flex"
+                        alignItems="flex-end"
+                        justifyContent="flex-end"
+                    >
+                        <Button variant="contained" onClick={() => setCreateOpen(true)} color="primary">Create</Button>
+                    </Box>
                     <TenantEdit
-                        open={open}
-                        setOpen={setOpen}
+                        open={editOpen}
+                        setOpen={setEditOpen}
                         tenant={tenant}
                         saveTenant={saveTenant}
+                    />
+                    <TenantCreate
+                        open={createOpen}
+                        setOpen={setCreateOpen}
+                        createTenant={createTenant}
+                    />
+                    <TenantDelete
+                        open={deleteOpen}
+                        setOpen={setDeleteOpen}
+                        tenant={tenant}
+                        deleteTenant={deleteTenant}
+                    />
+                    <Snackbar
+                        open={snack.open}
+                        onClose={handleClose}
+                        TransitionComponent={Transition}
+                        message={snack.message}
                     />
                 </Container>
             </main>

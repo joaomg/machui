@@ -11,8 +11,8 @@ import useMediaQuery from '@material-ui/core/useMediaQuery';
 import { useTheme } from '@material-ui/core/styles';
 
 
-export default function TenantEdit(props) {
-    const { open, setOpen, tenant, saveTenant } = props;
+export default function TenantDelete(props) {
+    const { open, setOpen, tenant, deleteTenant } = props;
 
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
@@ -21,18 +21,17 @@ export default function TenantEdit(props) {
     return (
         <div>
             <Dialog open={open} onClose={() => setOpen(false)} aria-labelledby="form-dialog-title" fullScreen={fullScreen}>
-                <DialogTitle id="form-dialog-title">Edit Tenant</DialogTitle>
+                <DialogTitle id="form-dialog-title">Delete {tenant.name}?</DialogTitle>
                 <Divider variant="middle" />
                 <DialogContent>
                     <DialogContentText>
-                        The tenant details, choose the name wisely.
+                        Just to make sure, fill in the tenant's name for deletion
                     </DialogContentText>
                     <TextField
                         margin="dense"
                         id="tenantName"
                         label="Name"
                         defaultValue={tenant.name}
-                        helperText={`Used to navigate: https://machui.eu/${tenant.name}`}
                         autoComplete="off"
                         fullWidth
                     />
@@ -41,8 +40,8 @@ export default function TenantEdit(props) {
                     <Button onClick={() => setOpen(false)} color="primary">
                         Cancel
                     </Button>
-                    <Button onClick={() => saveTenant({ id: tenant.id, name: tenantName.value })} color="primary">
-                        Save
+                    <Button onClick={() => deleteTenant({ id: tenant.id, name: tenantName.value })} color="primary">
+                        Delete
                     </Button>
                 </DialogActions>
             </Dialog>
