@@ -5,12 +5,12 @@ import { ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import theme from '../src/theme';
 
-MachupApp.propTypes = {
+MachApp.propTypes = {
     Component: PropTypes.elementType.isRequired,
     pageProps: PropTypes.object.isRequired,
 };
 
-export default function MachupApp(props) {
+export default function MachApp(props) {
     const { Component, pageProps } = props;
 
     React.useEffect(() => {
