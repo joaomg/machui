@@ -18,6 +18,15 @@ import TenantEdit from '../src/TenantEdit'
 import TenantCreate from '../src/TenantCreate'
 import TenantDelete from '../src/TenantDelete';
 
+import { useTheme, withStyles } from '@material-ui/core/styles';
+import { red } from '@material-ui/core/colors';
+
+const DeleteIconButton = withStyles((theme) => ({
+    root: {
+        color: red[500],        
+    },
+}))(IconButton);
+
 export async function getServerSideProps() {
     const res = await fetch(`http://localhost:5100/tenant`)
     const tenants = await res.json()
@@ -154,9 +163,9 @@ export function Tenant({ tenants }) {
                             <IconButton color="primary" variant="outlined" onClick={() => getTenant(value)}>
                                 <EditSharpIcon />
                             </IconButton>
-                            <IconButton color="secondary" variant="outlined" onClick={() => openDeleteTenant(value)}>
+                            <DeleteIconButton onClick={() => openDeleteTenant(value)}>
                                 <Delete />
-                            </IconButton>
+                            </DeleteIconButton>
                         </div>
                     )
                 }
@@ -182,13 +191,12 @@ export function Tenant({ tenants }) {
             </Head>
             <main>
                 <Container maxWidth="md">
-                    <Box m={1}>
+                    <Box>
                         <Typography variant="h4" component="h1" gutterBottom>
-                            Welcome to <Link href="/" color="secondary">MACHub!</Link>
+                            <Link href="/" color="secondary">MACHub!</Link> Tenants
                         </Typography>
                         <Paper>
-                            <MUIDataTable
-                                title={"Tenants"}
+                            <MUIDataTable                                
                                 data={tenantData}
                                 columns={columns}
                                 options={options}
@@ -196,12 +204,11 @@ export function Tenant({ tenants }) {
                         </Paper>
                     </Box>
                     <Box
-                        m="1"
+                        m={1}
                         display="flex"
-                        alignItems="flex-end"
                         justifyContent="flex-end"
                     >
-                        <Button variant="contained" onClick={() => setCreateOpen(true)} color="primary">Create</Button>
+                        <Button variant="contained" onClick={() => setCreateOpen(true)} color="primary">Create</Button>                        
                     </Box>
                     <TenantEdit
                         open={editOpen}

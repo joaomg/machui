@@ -1,5 +1,6 @@
 import React from 'react';
 import Button from '@material-ui/core/Button';
+import DeleteIcon from '@material-ui/icons/Delete';
 import TextField from '@material-ui/core/TextField';
 import Divider from '@material-ui/core/Divider';
 import Dialog from '@material-ui/core/Dialog';
@@ -8,15 +9,23 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
-import { useTheme } from '@material-ui/core/styles';
+import { useTheme, withStyles } from '@material-ui/core/styles';
+import { red } from '@material-ui/core/colors';
 
+const DeleteButton = withStyles((theme) => ({
+    root: {
+        color: red[500]
+    },
+}))(Button);
 
 export default function TenantDelete(props) {
     const { open, setOpen, tenant, deleteTenant } = props;
 
+    const [disabled, setDisabled] = React.useState(true)
+
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
-
+    
     if (!tenant) return null
     return (
         <div>
@@ -31,18 +40,21 @@ export default function TenantDelete(props) {
                         margin="dense"
                         id="tenantName"
                         label="Name"
-                        defaultValue={tenant.name}
                         autoComplete="off"
                         fullWidth
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpen(false)} color="primary">
+                    <Button
+                        onClick={() => setOpen(false)}
+                        color="primary">
                         Cancel
                     </Button>
-                    <Button onClick={() => deleteTenant({ id: tenant.id, name: tenantName.value })} color="primary">
+                    <DeleteButton
+                        onClick={() => deleteTenant({ id: tenant.id, name: tenantName.value })}
+                    >
                         Delete
-                    </Button>
+                    </DeleteButton>
                 </DialogActions>
             </Dialog>
         </div>
