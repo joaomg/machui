@@ -20,7 +20,6 @@ const DeleteButton = withStyles((theme) => ({
 
 export default function TenantDelete(props) {
     const { open, setOpen, tenant, deleteTenant } = props;
-
     const [disabled, setDisabled] = React.useState(true)
 
     const theme = useTheme();
@@ -41,6 +40,7 @@ export default function TenantDelete(props) {
                         id="tenantName"
                         label="Name"
                         autoComplete="off"
+                        onChange={(event) => setDisabled(event.target.value !== tenant.name)}
                         fullWidth
                     />
                 </DialogContent>
@@ -52,6 +52,7 @@ export default function TenantDelete(props) {
                     </Button>
                     <DeleteButton
                         onClick={() => deleteTenant({ id: tenant.id, name: tenantName.value })}
+                        disabled={disabled}
                     >
                         Delete
                     </DeleteButton>
