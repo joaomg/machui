@@ -150,7 +150,7 @@ export function Tenant({ tenants }) {
             name: "hash",
             label: "Hash",
             options: {
-                display: false,
+                display: 'false',
             }
         },
         {
