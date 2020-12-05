@@ -33,12 +33,13 @@ export default function TenantDelete(props) {
                 <Divider variant="middle" />
                 <DialogContent>
                     <DialogContentText>
-                        Just to make sure, fill in the tenant's name for deletion
+                        Just to make sure, fill in the tenant's name for deletion.
                     </DialogContentText>
                     <TextField
                         margin="dense"
                         id="tenantName"
                         label="Name"
+                        helperText="Yes, it's case-sensitive!"
                         autoComplete="off"
                         onChange={(event) => setDisabled(event.target.value !== tenant.name)}
                         fullWidth
@@ -51,7 +52,7 @@ export default function TenantDelete(props) {
                         Cancel
                     </Button>
                     <DeleteButton
-                        onClick={() => deleteTenant({ id: tenant.id, name: tenantName.value })}
+                        onClick={() => { deleteTenant({ id: tenant.id, name: tenantName.value }); tenantName.value=''; setDisabled(true) } }
                         disabled={disabled}
                     >
                         Delete
