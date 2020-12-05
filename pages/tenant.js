@@ -23,7 +23,7 @@ import { red } from '@material-ui/core/colors';
 
 const DeleteIconButton = withStyles((theme) => ({
     root: {
-        color: red[500],        
+        color: red[500],
     },
 }))(IconButton);
 
@@ -83,10 +83,10 @@ export function Tenant({ tenants }) {
             ;
     }
 
-    async function deleteTenant(tenant) {
-
-        fetch(`http://localhost:5100/tenant/${tenant.id}`, {
-            method: 'delete'
+    async function deleteTenant(tenant) {   
+        fetch(`http://localhost:5100/tenant/${tenant.id}/${tenant.name}`, {
+            method: 'delete',
+            body: JSON.stringify(tenant)
         })
             .then(response => response.json())
             .then(data => {
@@ -95,18 +95,7 @@ export function Tenant({ tenants }) {
                 refreshTenants()
             }
             )
-            .catch(err => console.log(err))
-        /*
-    fetchData(`http://localhost:5100/tenant/${tenant.id}`, 'DELETE', {})
-        .then(data => {
-            setSnack({ open: true, message: data.msg })
-            setEditOpen(false)
-            refreshTenants()
-        })
-        .then(error => {
-            console.log(error)
-        });
-        */
+            .catch(err => console.log(err))        
     }
 
     async function openDeleteTenant(tenantId) {
@@ -196,7 +185,7 @@ export function Tenant({ tenants }) {
                             <Link href="/" color="secondary">MACHub!</Link> Tenants
                         </Typography>
                         <Paper>
-                            <MUIDataTable                                
+                            <MUIDataTable
                                 data={tenantData}
                                 columns={columns}
                                 options={options}
@@ -208,7 +197,7 @@ export function Tenant({ tenants }) {
                         display="flex"
                         justifyContent="flex-end"
                     >
-                        <Button variant="contained" onClick={() => setCreateOpen(true)} color="primary">Create</Button>                        
+                        <Button variant="contained" onClick={() => setCreateOpen(true)} color="primary">Create</Button>
                     </Box>
                     <TenantEdit
                         open={editOpen}
